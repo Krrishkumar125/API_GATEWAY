@@ -3,10 +3,13 @@ const morgan = require("morgan");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 const rateLimit = require("express-rate-limit");
 const axios = require("axios");
+const dotenv = require('dotenv');
 
 const app = express();
+dotenv.config();
 
-const PORT = 3005;
+const PORT = process.env.PORT;
+const BOOKING_SERVICE_URL = process.env.BOOKING_SERVICE_URL;
 
 const limiter = rateLimit({
   windowMs: 2 * 60 * 1000,
@@ -40,14 +43,10 @@ app.use("/bookingservice", async (req, res, next) => {
 app.use(
   "/bookingservice",
   createProxyMiddleware({
-    target: "http://localhost:3003/",
+    target: BOOKING_SERVICE_URL,
     changeOrigin: true,
   })
 );
-
-app.get("/home", (req, res) => {
-  return res.json({ message: "OK" });
-});
 
 app.listen(PORT, () => {
   console.log(`Server started at ${PORT}`);
